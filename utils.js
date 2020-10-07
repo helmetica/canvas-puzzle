@@ -12,10 +12,6 @@ export const INVERT_SIDE = {
   [SIDES.LEFT]: SIDES.RIGHT,
 };
 
-export function getHundreds(n) {
-  return n - (n % 100);
-}
-
 export function resize(width, height, availableWidth, availableHeight) {
   console.warn(width, height, availableWidth, availableHeight);
   const max = Math.max(width, height);
@@ -115,7 +111,7 @@ export function calcOffsetBetween(sideP1, sideP2) {
   };
 }
 
-export function isEqualSides(side1, side2, delta) {
+export function isInConnectionArea(side1, side2, delta) {
   const sideArea = [
     { x: side2[0].x - delta, y: side2[0].y - delta },
     { x: side2[1].x + delta, y: side2[1].y + delta },
@@ -126,6 +122,7 @@ export function isEqualSides(side1, side2, delta) {
 
 export function playSound() {
   const audio = new Audio();
+
   audio.src = 'sound.mp3';
   audio.autoplay = true;
 }

@@ -5,6 +5,10 @@ html, body {
   overflow: hidden;
 }
 
+button {
+  cursor: pointer;
+}
+
 .header {
   display: flex;
   align-items: center;

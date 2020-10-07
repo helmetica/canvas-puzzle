@@ -24,7 +24,9 @@ const [imgW, imgH] = [imgEl.width, imgEl.height];
 imgEl.classList.toggle('hidden', false);
 cnvImg.width = imgEl.clientWidth;
 cnvImg.height = imgEl.clientHeight;
+
 const resizeSize = utl.resize(imgW, imgH, cnvImg.width, cnvImg.height);
+
 cnvImg.width = resizeSize.width;
 cnvImg.height = resizeSize.height;
 console.warn(resizeSize);
@@ -41,6 +43,9 @@ cnv.width = WIDTH;
 cnv.height = HEIGHT;
 ctx.lineWidth = 1;
 
+/**
+ * Перерисовка canvas с учетом z-index пазлов
+ */
 function render() {
   maxZ = Math.max(...pieces.map(p => p.z));
   ctx.clearRect(0, 0, cnv.width, cnv.height);
@@ -48,17 +53,37 @@ function render() {
   pieces.forEach(piece => piece.draw());
 }
 
-function checkSide(piece1, sidePoints1, sideName1, piece2, sidePoints2, sideName2) {
+/**
+ * Проверяем стороны пазлов на подходящее соединение
+ *
+ * @param {Object} side1
+ * @param {Object} side1.piece - пазл, которому принадлежит первая стороны
+ * @param {Object} side1.points - координаты сторон первого пазла
+ * @param {String} side1.name - наименование первой стороны
+ * @param {Object} side2
+ * @param {Number} delta - расстояние для склеивания близлежащих пазлов
+ * @return {Boolean} true - стороны соединяются
+ */
+function checkSide(side1, side2, delta) {
+  const { piece: piece1, points: points1, name: name1 } = side1;
+  const { piece: piece2, points: points2, name: name2 } = side2;
+
   let isNotSameGroup = true;
-  let isFit = piece1.keys[sideName1] && piece2.keys[sideName2]
-    && piece1.keys[sideName1] === piece2.keys[sideName2];
+  // проверка соответствия ключей сторон
+  let isFit = piece1.keys[name1] && piece2.keys[name2] && piece1.keys[name1] === piece2.keys[name2];
 
   if (piece1.group || piece2.group) isNotSameGroup = piece2.group !== piece1.group;
 
-  return isNotSameGroup && isFit && utl.isEqualSides(sidePoints1[sideName1], sidePoints2[sideName2], DELTA);
+  return isNotSameGroup && isFit && utl.isInConnectionArea(points1[name1], points2[name2], delta);
 }
 
-function findNearPiece(piece) {
+/**
+ * Выполняем обход по кусочкам пазлов и выполняем соединение с переданным
+ *
+ * @param {Object} piece - пазл для проверки соединения
+ * @param {Number} delta - расстояние для склеивания близлежащих пазлов
+ */
+function checkSidesForConnection(piece, delta) {
   const pieceSides = piece.getSidesPoins();
   let pieceSide;
   let pSide;
@@ -68,7 +93,14 @@ function findNearPiece(piece) {
 
     for (const keySide of Object.keys(SIDES)) {
       const side = SIDES[keySide];
-      if (checkSide(piece, pieceSides, side, p, pSides, INVERT_SIDE[side])) {
+
+      if (
+          checkSide(
+          { piece, points: pieceSides, name: side },
+          { piece: p, points: pSides, name: INVERT_SIDE[side]},
+              delta
+          )
+      ) {
         pieceSide = pieceSides[side];
         pSide = pSides[INVERT_SIDE[side]];
 
@@ -84,14 +116,19 @@ function findNearPiece(piece) {
   }
 }
 
+/**
+ * Выполняет склеивание двух пазлов и их групп
+ */
 function merge(piece1, piece2, pieceSide, resultSide) {
   const offsets = utl.calcOffsetBetween(pieceSide, resultSide);
 
   movablePieces.forEach(p => p.moveAt(offsets.x, offsets.y));
 
-  if (piece1.group && !piece2.group) piece2.group = piece1.group;
-  else if (!piece1.group && piece2.group) piece1.group = piece2.group;
-  else if (!piece1.group && !piece2.group) {
+  if (piece1.group && !piece2.group) {
+    piece2.group = piece1.group;
+  } else if (!piece1.group && piece2.group) {
+    piece1.group = piece2.group;
+  } else if (!piece1.group && !piece2.group) {
     group++;
     piece1.group = group;
     piece2.group = group;
@@ -112,6 +149,10 @@ pieces = generatePuzzle(cnvImg, Math.floor(cnvImg.height / PIECE_SIZE),Math.floo
 console.warn(pieces);
 render();
 
+/**
+ * Генерация сетки пазлов
+ * return {Array} массив сетки пазлов, содержащий объекты кусочков
+ */
 function generatePuzzle(image, rows, cols) {
   const grid = Array.from(new Array(rows), () => Array.from(new Array(cols)));
   const halfPiecesCount = Math.floor((rows * cols) / 2);
@@ -151,7 +192,7 @@ function generatePuzzle(image, rows, cols) {
         0, 0, PIECE_SIZE + GUTTER_SIZE * 2, PIECE_SIZE + GUTTER_SIZE * 2,
       );
 
-      // разброс пазлов
+      // разброс пазлов поровну справа и слева
       const isRight = !!utl.random(2);
       let min;
       let max;
@@ -194,7 +235,6 @@ document.getElementById('visibleButton').onclick = function (event) {
 };
 
 document.getElementById('settings').onclick = function (event) {
-
 };
 
 cnv.onmousemove = function(event) {
@@ -237,7 +277,7 @@ cnv.onmousedown = function(event) {
 
 cnv.onmouseup = function() {
   if (selectedPiece) {
-    findNearPiece(selectedPiece);
+    checkSidesForConnection(selectedPiece, DELTA);
 
     render();
   }
