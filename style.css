@@ -1,0 +1,45 @@
+html, body {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  padding: 0 20px;
+  font-family: monospace;
+  font-size: 24px;
+  background: black;
+  color: white;
+}
+
+#canvas {
+  height: calc(100% - 40px);
+  width: 100%;
+  /* background: url(background.jpg); */
+}
+
+#canvasImage {
+  display: none;
+  position: absolute;
+  left: 0;
+  z-index: -5;
+}
+
+.hidden {
+  display: none;
+}
+
+#image {
+  position: absolute;
+  height: 60%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.5;
+  z-index: -1;
+}
