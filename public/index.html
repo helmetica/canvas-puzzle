@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Canvas Puzzles</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="../style.css">
+    <link rel="manifest" href="/manifest.json">
+    <script type="module" src="/pwabuilder-sw-register.js"></script>
+  </head>
+
+  <body>
+    <header class="header">
+      <span>puzzle</span>
+      <div>
+        <button id="visibleButton">show</button>
+        <button id="settings">upload</button>
+      </div>
+    </header>
+
+    <canvas id="canvas"></canvas>
+    <canvas id="canvasImage" class="hidden"></canvas>
+
+    <img src="../src/image.jpg" id="image" alt="">
+
+    <script src="../utils.js" type="module"></script>
+    <script src="../piece.js" type="module"></script>
+    <script src="../index.js" type="module"></script>
+  </body>
+</html>
