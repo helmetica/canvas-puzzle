@@ -3,7 +3,7 @@
   "name": "Puzzle PWA",
   "short_name": "PuzzlePWA",
   "description": "A sample PWA for testing purposes",
-  "start_url": "/index.html",
+  "start_url": "/canvas-puzzle/",
   "background_color": "#2f3d58",
   "theme_color": "#2f3d58",
   "orientation": "any",
