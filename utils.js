@@ -98,8 +98,9 @@ export function getSidesFromPoints(points) {
 }
 
 export function calcEventPage(event, cnv) {
-  const x = event.pageX - cnv.offsetLeft;
-  const y = event.pageY - cnv.offsetTop;
+  const point = event.touches && event.touches[0] || event
+  const x = point.pageX - cnv.offsetLeft;
+  const y = point.pageY - cnv.offsetTop;
 
   return { x, y };
 }

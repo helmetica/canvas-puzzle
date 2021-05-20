@@ -237,7 +237,15 @@ document.getElementById('visibleButton').onclick = function (event) {
 document.getElementById('settings').onclick = function (event) {
 };
 
-cnv.onmousemove = function(event) {
+cnv.addEventListener('mousemove', moveHandler)
+cnv.addEventListener('mousedown', startMoveHandler)
+cnv.addEventListener('mouseup', moveEndHandler)
+
+cnv.addEventListener('touchmove', moveHandler)
+cnv.addEventListener('touchstart', startMoveHandler)
+cnv.addEventListener('touchend', moveEndHandler)
+
+function moveHandler(event) {
   if (selectedPiece) {
     const ePage = utl.calcEventPage(event, cnv);
     const offsetX = ePage.x - startPoint.x;
@@ -249,9 +257,9 @@ cnv.onmousemove = function(event) {
 
     render();
   }
-};
+}
 
-cnv.onmousedown = function(event) {
+function startMoveHandler(event) {
   const ePage = utl.calcEventPage(event, cnv);
 
   if (!selectedPiece) {
@@ -273,9 +281,9 @@ cnv.onmousedown = function(event) {
       });
     }
   }
-};
+}
 
-cnv.onmouseup = function() {
+function moveEndHandler() {
   if (selectedPiece) {
     checkSidesForConnection(selectedPiece, DELTA);
 
@@ -284,4 +292,4 @@ cnv.onmouseup = function() {
 
   selectedPiece = null;
   movablePieces = [];
-};
+}
